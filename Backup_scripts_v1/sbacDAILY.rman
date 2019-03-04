@@ -1,0 +1,14 @@
+run
+{
+  # if DB in read only comment line !
+  sql 'alter system checkpoint';
+  sql 'alter system archive log current';  
+
+  backup as compressed backupset incremental level=1 cumulative database include current controlfile tag='DB_DAILY';
+
+  # if DB in read only comment line !
+  sql 'alter system checkpoint';
+  sql 'alter system archive log current';  
+
+  backup as compressed backupset archivelog all delete input tag='ARCH_DAILY' ;
+}

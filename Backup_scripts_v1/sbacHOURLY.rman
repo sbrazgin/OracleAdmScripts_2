@@ -1,0 +1,4 @@
+run
+{
+  backup as compressed backupset archivelog all DELETE INPUT tag='ARCH_HOURLY';
+}

@@ -1,0 +1,32 @@
+run
+{
+  # if DB in read only comment line !
+  sql 'alter system checkpoint';
+  sql 'alter system archive log current';  
+
+  crosscheck archivelog all; 
+  crosscheck backup device type disk;  
+  crosscheck archivelog all device type disk;
+
+  delete noprompt expired backup ;
+  delete noprompt expired archivelog all;
+
+  backup as compressed backupset incremental level=0 database include current controlfile tag='DB_FULL' ;
+
+  sql 'alter system checkpoint';
+  sql 'alter system archive log current';
+
+  backup as compressed backupset archivelog all delete input tag='ARCH_FULL';
+
+  delete noprompt obsolete device type disk;
+
+  sql "alter database backup controlfile to trace as ''${PATH_TO_BACKUP}/control_trace_${date}.ctl''";
+
+  sql "create pfile=''${PATH_TO_BACKUP}/init_db_${date}.ora'' from spfile";
+
+  backup current controlfile format '${PATH_TO_BACKUP}/control_db_%d_%U';
+
+  backup current controlfile for standby format '${PATH_TO_BACKUP}/standby_control_${date}.ctl' tag 'STNDB_CTL'; 
+}
+
+
